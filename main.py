@@ -1,8 +1,8 @@
+from random import randint
 import pygame
 import Aeronave
 from Torreta import Torreta
 from Helicoptero import Helicoptero
-from random import randint
 from MenuPrincipal import MenuPrincipal
 from Potenciador import Potenciador
 
@@ -14,13 +14,14 @@ alto = 720
 
 # creacion de una ventana
 ventana = pygame.display.set_mode((ancho, alto))
-pygame.display.set_caption("Steel Hawk proyecto de POO")  # Nombre de la etiqueta de la ventana
+# Nombre de la etiqueta de la ventana
+pygame.display.set_caption("Steel Hawk proyecto de POO")
 clock = pygame.time.Clock()
 menu = MenuPrincipal()
 
 fondo = pygame.image.load("Graficos/Fondo.gif")
 fondoRect = fondo.get_rect()
-fondoRect.topleft = (0, -16920)#17644
+fondoRect.topleft = (0, -16920)  # 17644
 
 avion = Aeronave.Avion((ancho / 2.5, alto / 1.3))
 
@@ -59,8 +60,17 @@ def nivel1():
     n = 0
     for i in range(5):
         n -= 3300
-        listaDeHelicopteros.append(Helicoptero((ancho / 2, n), 7, "helicoptero"))
+        listaDeHelicopteros.append(Helicoptero(
+            (ancho / 2, n), 7, "helicoptero"))
     n = 0
+
+
+def reiniciarObjetos():
+    potenciadores.clear()
+    listaDeTorretas.clear()
+    listaDeHelicopteros.clear()
+    ventana.fill(pygame.Color('gray'))
+
 
 nivel1()
 while not salir:
@@ -69,7 +79,8 @@ while not salir:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.Rect(pygame.mouse.get_pos(), (1, 1)).colliderect(menu.jugar):
                     play = True
-                    pygame.mixer.music.play(4)  # reproduccion de la musica de fondo
+                    # reproduccion de la musica de fondo
+                    pygame.mixer.music.play(4)
                 if pygame.Rect(pygame.mouse.get_pos(), (1, 1)).colliderect(menu.controles):
                     configuracion = True
                 if pygame.Rect(pygame.mouse.get_pos(), (1, 1)).colliderect(menu.atras):
@@ -88,8 +99,6 @@ while not salir:
                 ventana.fill(pygame.Color('gray'))
 
         # Verifica si se presiona el boton de cerrar la ventana, en caso verdadero
-
-
         # hace verdadera la variable booleana salir y termina el ciclo
         if event.type == pygame.QUIT:
             salir = True
@@ -97,34 +106,41 @@ while not salir:
     if not play:
         menu.dibujar(ventana, configuracion)
     else:
+        # Si el avion se queda sin disparos significa que se perdio el juego
         if avion.capasDisparos <= 0:
             key_states = pygame.key.get_pressed()
             pygame.mixer.music.stop()
-            ventana.blit(pygame.font.Font(None, 75).render("Has perdido", 0, (0, 0, 0)), (ancho/3, alto/3))
-            ventana.blit(pygame.font.Font(None, 75).render("Presiona enter para", 0, (0, 0, 0)), (ancho / 4, alto / 2))
-            ventana.blit(pygame.font.Font(None, 75).render("volver al menu", 0, (0, 0, 0)), (ancho / 3, alto/1.5))
+            ventana.blit(pygame.font.Font(None, 75).render(
+                "Has perdido", 0, (0, 0, 0)), (ancho/3, alto/3))
+            ventana.blit(pygame.font.Font(None, 75).render(
+                "Presiona enter para", 0, (0, 0, 0)), (ancho / 4, alto / 2))
+            ventana.blit(pygame.font.Font(None, 75).render(
+                "volver al menu", 0, (0, 0, 0)), (ancho / 3, alto/1.5))
+
             if key_states[pygame.K_RETURN] == 1:
-                ventana.fill(pygame.Color('gray'))
-                potenciadores.clear()
-                listaDeTorretas.clear()
+                reiniciarObjetos()
+                avion = Aeronave.Avion((ancho / 2.5, alto / 1.3))
                 nivel1()
                 play = False
 
         elif avion.capasDisparos > 0 >= len(listaDeTorretas):
             key_states = pygame.key.get_pressed()
             pygame.mixer.music.stop()
-            ventana.blit(pygame.font.Font(None, 75).render("Has ganado", 0, (0, 0, 0)), (ancho / 3, alto / 3))
-            ventana.blit(pygame.font.Font(None, 75).render("Presiona enter para", 0, (0, 0, 0)), (ancho / 4, alto / 2))
-            ventana.blit(pygame.font.Font(None, 75).render("volver al menu", 0, (0, 0, 0)), (ancho / 3, alto / 1.5))
+            ventana.blit(pygame.font.Font(None, 75).render(
+                "Has ganado", 0, (0, 0, 0)), (ancho / 3, alto / 3))
+            ventana.blit(pygame.font.Font(None, 75).render(
+                "Presiona enter para", 0, (0, 0, 0)), (ancho / 4, alto / 2))
+            ventana.blit(pygame.font.Font(None, 75).render(
+                "volver al menu", 0, (0, 0, 0)), (ancho / 3, alto / 1.5))
             if key_states[pygame.K_RETURN] == 1:
-                ventana.fill(pygame.Color('gray'))
-                potenciadores.clear()
-                listaDeTorretas.clear()
+                reiniciarObjetos()
+                avion = Aeronave.Avion((ancho / 2.5, alto / 1.3))
                 nivel1()
                 play = False
         else:
             tiempoEstado = pygame.time.get_ticks() / 50
-            ventana.fill(pygame.Color(70, 80, 150))  # Metodo para rellenar la ventana con un colorz
+            # Metodo para rellenar la ventana con un color
+            ventana.fill(pygame.Color(70, 80, 150))
             ventana.blit(fondo, fondoRect)
             fondoRect.top += 1
 
@@ -136,7 +152,8 @@ while not salir:
                     x.comportamiento(tiempoEstado, ventana)
                     if x.rect.top >= -100:
                         x.dibujar(ventana)
-                        x.mostrar_vida(ventana)  # yop muestra la vida del enemigo correspondiente
+                        # yop muestra la vida del enemigo correspondiente
+                        x.mostrar_vida(ventana)
                         if not x.vivo or x.rect.top > 700:
                             if randint(0, 100) == 25:
                                 listaDeTorretas.remove(x)
@@ -147,7 +164,8 @@ while not salir:
                     x.comportamiento(tiempoEstado, ventana, avion.rect.left)
                     if x.rect.top >= -100:
                         x.dibujar(ventana)
-                        x.mostrar_vida(ventana)  # yop muestra la vida del enemigo correspondiente
+                        # yop muestra la vida del enemigo correspondiente
+                        x.mostrar_vida(ventana)
                         if not x.vivo or x.rect.top > 700:
                             if randint(0, 100) == 25:
                                 listaDeHelicopteros.remove(x)
@@ -157,11 +175,14 @@ while not salir:
             avion.detectar_disparo(listaDeTorretas)  # yop
             avion.detectar_potenciador(potenciadores)
             avion.detectar_impacto(listaDeTorretas)
-            avion.eventosDelTeclado(event)  # llamada al metodo para manejar los eventos del teclado del avion
             avion.dibujar(ventana)  # metodo para dibujar el avion en pantalla
             avion.mostrar_vida(ventana)  # yop Muestra la vida del avion
+            # disparar se activa solo si el gatillo esta presionado, ver este metodo en la clase aeronave
+            avion.disparar()
+            # llamada al metodo para manejar los eventos del teclado del avion
+            avion.eventosDelTeclado(event)
 
     pygame.display.flip()
-    clock.tick(90) #para regular cuantos frames se ejecutan cada segundo
+    clock.tick(90)  # para regular cuantos frames se ejecutan cada segundo
 
 pygame.quit()
