@@ -111,12 +111,12 @@ class Avion(pygame.sprite.Sprite):
             self.recortar(self.frenar)
             self.rect.y += 5
             if self.rect.y > 588:
-                    self.rect.y = 588
+                self.rect.y = 588
 
         # En este paso se verifica la posicion en la que quedo el avion
         # si quedo en posicion derecha o izquierda se establece en la
         # posicion por defecto
-        if direccion == 'stand_left' or direccion == 'stand_right' or direccion == 'stand_up':
+        if direccion == 'stand':
             self.avion.set_clip(pygame.Rect(0, 0, 104, 126))
 
         # se actualiza la posicion de la imagen
@@ -154,14 +154,11 @@ class Avion(pygame.sprite.Sprite):
                 self.presionarGatillo = True
                 self.disparar()
 
-            # verificacion de las teclas que no estan presionadas para 
+            # verificacion de las teclas que no estan presionadas para
             # devolver la posicion del avion de acuerdo a ese estado
-            if key_states[pygame.K_LEFT] == 0:
-                self.update('stand_left')
-            if key_states[pygame.K_RIGHT] == 0:
-                self.update('stand_right')
-            if key_states[pygame.K_UP] == 0:
-                self.update('stand_up')
+            if key_states[pygame.K_LEFT] == 0 and key_states[pygame.K_RIGHT] == 0 and key_states[pygame.K_UP] == 0:
+                self.update('stand')
+
             if key_states[pygame.K_z] == 0:
                 self.presionarGatillo = False
 
@@ -173,24 +170,24 @@ class Avion(pygame.sprite.Sprite):
     def detectar_impacto(self, lista):  # yop
         if self.capasDisparos > 0:
             if len(lista) > 0:
-                for x in lista:
-                    if x.rect.colliderect(self.rect):
+                for enemigo in lista:
+                    if enemigo.rect.colliderect(self.rect) and enemigo.vivo:
                         self.capasDisparos -= 1
 
-    def detectar_potenciador(self, lista):  # yop
-        if self.capasDisparos < 5 and len(lista) > 0:
-            for x in lista:
-                if x.rect.colliderect(self.rect):
-                    lista.remove(x)
+    def detectar_potenciador(self, potenciadores):  # yop
+        if self.capasDisparos < 5 and len(potenciadores) > 0:
+            for potenciador in potenciadores:
+                if potenciador.rect.colliderect(self.rect):
+                    potenciadores.remove(potenciador)
                     self.capasDisparos += 1
 
     # yop metodo que detecta el impacto de los disparos del enemigo con el avion
     # yop Diferenciar de quien proviene el disparo y respecto a ello eliminar la capa o no
-    def detectar_disparo(self, listaEnemigos):
+    def detectar_disparo(self, enemigos):
         if self.capasDisparos > 0:
-            if len(listaEnemigos) > 0:
-                for enemigo in listaEnemigos:
+            if len(enemigos) > 0:
+                for enemigo in enemigos:
                     for disparo in enemigo.disparos:
-                        if disparo.rect.colliderect(self.rect):
+                        if disparo.rect.colliderect(self.rect) and enemigo.vivo:
                             self.capasDisparos -= 1
                             enemigo.disparos.remove(disparo)
